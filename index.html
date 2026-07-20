@@ -33,6 +33,7 @@
     <span class="chip" id="streak">🔥 0일</span>
     <span class="chip" id="done">✅ 0/5</span>
     <span class="chip" id="clock">⏱</span>
+    <span class="chip" id="nextAction">다음: 미션</span>
   </div>
 
   <div class="card">
@@ -112,7 +113,35 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
     });
     updateMeta(s);
     const pipe=document.getElementById('pipe');
-    pipe.innerHTML=(s.pipe||[]).slice().reverse().map(p=>`<div style="margin:6px 0;padding:8px;border:1px solid #2a2438;border-radius:8px"><b>${escapeHtml(p.name)}</b><br>${escapeHtml(p.note||'')}<br><span style="font-size:11px">${p.at||''}</span></div>`).join('')||'아직 없음 — 컨택 추가';
+    const STAGES=['lead','sent','reply','deal','pass'];
+    const stageLabel={lead:'리드',sent:'발송',reply:'회신',deal:'성사',pass:'패스'};
+    pipe.innerHTML=(s.pipe||[]).slice().reverse().map((p,revI)=>{
+      const real=(s.pipe.length-1)-revI;
+      const st=p.stage||'lead';
+      return `<div style="margin:6px 0;padding:8px;border:1px solid #2a2438;border-radius:8px">
+        <b>${escapeHtml(p.name)}</b> <span class="chip" style="margin-left:6px">${stageLabel[st]||st}</span>
+        <br>${escapeHtml(p.note||'')}
+        <br><span style="font-size:11px">${p.at||''}</span>
+        <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+          <button type="button" class="ghost" data-stage="${real}" style="padding:6px 10px">단계→</button>
+          <button type="button" class="ghost" data-pdel="${real}" style="padding:6px 10px">삭제</button>
+        </div>
+      </div>`;
+    }).join('')||'아직 없음 — 컨택 추가';
+    pipe.querySelectorAll('[data-stage]').forEach(btn=>{
+      btn.onclick=()=>{
+        const i=+btn.getAttribute('data-stage'); const s2=state();
+        const cur=s2.pipe[i]; if(!cur)return;
+        const idx=STAGES.indexOf(cur.stage||'lead');
+        cur.stage=STAGES[Math.min(STAGES.length-1, idx+1)];
+        cur.at=new Date().toLocaleString();
+        save(s2); render(); toast('단계 '+(stageLabel[cur.stage]||cur.stage));
+        try{legionTrack('pipe_stage',{stage:cur.stage})}catch(e){}
+      };
+    });
+    pipe.querySelectorAll('[data-pdel]').forEach(btn=>{
+      btn.onclick=()=>{const i=+btn.getAttribute('data-pdel'); const s2=state(); s2.pipe.splice(i,1); save(s2); render();};
+    });
     // midnight clock
     const n=new Date();const end=new Date(n);end.setHours(24,0,0,0);
     const m=Math.max(0,Math.floor((end-n)/60000));
@@ -136,6 +165,16 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
       logWeekDay(n);
     }
     document.getElementById('streak').textContent='🔥 '+(s.streak||0)+'일';
+    try{
+      const na=document.getElementById('nextAction');
+      if(na){
+        const unchecked=DEFAULT.findIndex((_,i)=>!(s.checks||[])[i]);
+        const pipeLead=(s.pipe||[]).filter(p=>(p.stage||'lead')==='lead').length;
+        if(unchecked>=0) na.textContent='다음: '+DEFAULT[unchecked].slice(0,12);
+        else if(pipeLead>0) na.textContent='다음: 파이프 '+pipeLead+' 진행';
+        else na.textContent='다음: 공유/시딩';
+      }
+    }catch(e){}
     renderHeat();
   }
   function logWeekDay(n){
@@ -173,7 +212,7 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
     const name=document.getElementById('contact').value.trim();
     const note=document.getElementById('note').value.trim();
     if(!name){toast('이름 필요');return}
-    s.pipe=s.pipe||[];s.pipe.push({name,note,at:new Date().toLocaleString()});
+    s.pipe=s.pipe||[];s.pipe.push({name,note,stage:'lead',at:new Date().toLocaleString()});
     save(s);document.getElementById('contact').value='';document.getElementById('note').value='';
     try{if(window.legionTrack)legionTrack('share',{pipe:1})}catch(e){}
     render();toast('파이프 추가');
