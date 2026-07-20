@@ -119,6 +119,18 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
         b.style.cssText='padding:6px 10px';
         b.onclick=()=>{const s2=state(); s2.checks=DEFAULT.map(()=>true); save(s2); render(); try{legionTrack('activate',{allquick:1})}catch(e){}};
         row.appendChild(b);
+        const u=document.createElement('button'); u.id='undoCheckM'; u.className='ghost'; u.textContent='↩ 마지막 체크';
+        u.style.cssText='padding:6px 10px';
+        u.onclick=()=>{
+          const s2=state();
+          let last=-1;
+          for(let i=DEFAULT.length-1;i>=0;i--){ if(s2.checks&&s2.checks[i]){ last=i; break; } }
+          if(last<0){toast('취소할 체크 없음');return;}
+          s2.checks[last]=false; save(s2); render();
+          try{legionTrack('undo',{i:last})}catch(e){}
+          toast('체크 취소');
+        };
+        row.appendChild(u);
       }
     }
     const pipe=document.getElementById('pipe');
@@ -226,13 +238,18 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
       const el=document.getElementById('weekHeat'); if(!el)return;
       let w=JSON.parse(localStorage.getItem('p19_week_v1')||'{}');
       const cells=[];
+      let fullDays=0, partial=0, sum=0;
       for(let i=6;i>=0;i--){
         const d=new Date(Date.now()-i*864e5).toISOString().slice(0,10);
         const n=w[d]||0;
         const full=n>=5;
+        if(full) fullDays++;
+        if(n>=3) partial++;
+        sum+=n;
         cells.push('<span class="chip" style="'+(full?'background:#166534;color:#bbf7d0':n>=3?'background:#3b2f10;color:#fde68a':'')+'">'+d.slice(5)+' '+n+'/5</span>');
       }
-      el.innerHTML=cells.join('');
+      const rate=Math.round(fullDays/7*100);
+      el.innerHTML=cells.join('')+'<div style="margin-top:6px;font-size:11px;opacity:.8">7일 완주 '+fullDays+'/7 ('+rate+'%) · 3+일 '+partial+' · 평균 '+(sum/7).toFixed(1)+'/5</div>';
     }catch(e){}
   }
   document.getElementById('save').onclick=()=>{
