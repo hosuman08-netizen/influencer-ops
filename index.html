@@ -70,7 +70,10 @@
   <button class="ghost" id="share" style="width:100%;margin-top:8px">📤 오늘 보드 공유 문구 복사</button>
   <footer>Tool for creators · Not financial advice · Legion p19</footer>
   <div id="toast"></div>
-  <script>window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-analytics.hoyashi95.workers.dev';</script>
+  <script>
+// 5H: ops done counter
+window._opsDone=+(localStorage.getItem('ops_done')||0);
+window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-analytics.hoyashi95.workers.dev';</script>
   <script src="legion-beacon.js"></script>
   <script>
   const KEY='p19_ops_v1';
