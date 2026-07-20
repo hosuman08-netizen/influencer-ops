@@ -149,6 +149,18 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
   }
   function escapeHtml(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   function updateMeta(s){
+    try{
+      const pipe=s.pipe||[];
+      const counts={lead:0,sent:0,reply:0,deal:0,pass:0};
+      pipe.forEach(p=>{const st=p.stage||'lead'; if(counts[st]!=null)counts[st]++; else counts.lead++;});
+      let fc=document.getElementById('funnelChip');
+      if(!fc){
+        fc=document.createElement('span'); fc.id='funnelChip'; fc.className='chip';
+        const row=document.querySelector('.row'); if(row) row.appendChild(fc);
+      }
+      fc.textContent='파이프 L'+counts.lead+'/S'+counts.sent+'/R'+counts.reply+'/D'+counts.deal;
+    }catch(e){}
+
     const n=(s.checks||[]).filter(Boolean).length;
     document.getElementById('done').textContent='✅ '+n+'/5';
     let streak=s.streak||0;
