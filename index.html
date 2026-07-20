@@ -4,38 +4,135 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Influencer Ops OS · Legion</title>
-  <meta name="description" content="인플루언서 1인을 위한 AI 군단 커맨드: 콘텐츠 캘린더, DM/협찬 파이프, 함대 앱 시딩 허브. 2026 가장 핫한 creator×agent 교차."/>
+  <meta name="description" content="크리에이터 1인 사령탑 — 오늘 할 일, 협찬 파이프, 함대 시딩"/>
   <style>
-    :root{--bg:#0b0a10;--gold:#e0b552;--txt:#ece8f1;--dim:#8a8398}
+    :root{--bg:#0b0a10;--surf:#15131d;--gold:#e0b552;--cyan:#67e8f9;--dim:#8a8398;--txt:#ece8f1}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;min-height:100vh;padding:28px 18px;line-height:1.5}
-    h1{font-size:1.5rem;color:var(--gold);margin-bottom:8px}
-    .tag{color:var(--dim);font-size:12px;margin-bottom:16px}
-    .card{background:#15131d;border:1px solid #2a2438;border-radius:14px;padding:16px;margin:12px 0}
-    .money{color:#67e8f9;font-size:13px}
-    a{color:var(--gold)}
-    footer{margin-top:28px;font-size:11px;color:var(--dim);text-align:center}
+    body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;padding:20px 16px 48px;line-height:1.45}
+    h1{font-size:1.45rem;background:linear-gradient(120deg,var(--gold),#f4d98a);-webkit-background-clip:text;color:transparent}
+    .sub{color:var(--dim);font-size:13px;margin:6px 0 16px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .chip{background:var(--surf);border:1px solid #2a2438;border-radius:999px;padding:6px 12px;font-size:12px;color:var(--cyan)}
+    .card{background:var(--surf);border:1px solid #2a2438;border-radius:14px;padding:14px;margin:10px 0}
+    .card h2{font-size:13px;color:var(--gold);margin-bottom:10px}
+    label{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:8px 0;cursor:pointer}
+    input[type=checkbox]{margin-top:3px}
+    textarea,input[type=text]{width:100%;background:#0e0c14;border:1px solid #2a2438;border-radius:10px;color:var(--txt);padding:10px;font-size:14px}
+    button{border:0;border-radius:10px;padding:11px 14px;font-weight:700;cursor:pointer}
+    .primary{background:var(--gold);color:#111;width:100%}
+    .ghost{background:transparent;border:1px solid #3d3550;color:var(--txt);font-size:12px}
+    .links a{display:block;color:var(--gold);font-size:13px;margin:6px 0;text-decoration:none}
+    footer{text-align:center;color:var(--dim);font-size:11px;margin-top:24px}
+    #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1a1520;color:var(--gold);padding:10px 14px;border-radius:10px;border:1px solid var(--gold);font-size:12px;display:none;z-index:9}
   </style>
 </head>
 <body>
-  <p class="tag">p19-influencer-ops · Legion scaffold · 2026-07-21</p>
   <h1>Influencer Ops OS</h1>
-  <div class="card">
-    <p>인플루언서 1인을 위한 AI 군단 커맨드: 콘텐츠 캘린더, DM/협찬 파이프, 함대 앱 시딩 허브. 2026 가장 핫한 creator×agent 교차.</p>
-    <p class="money" style="margin-top:10px">💰 Creator SaaS / 협찬·에이전트 자동화 · neo 본체 정합</p>
+  <p class="sub">p19 · 1인 크리에이터 사령탑 · 군단 연동 · 오늘만 집중</p>
+  <div class="row">
+    <span class="chip" id="streak">🔥 0일</span>
+    <span class="chip" id="done">✅ 0/5</span>
+    <span class="chip" id="clock">⏱</span>
   </div>
+
   <div class="card">
-    <button id="cta" style="width:100%;padding:12px;border:0;border-radius:10px;background:var(--gold);color:#111;font-weight:700;cursor:pointer">시작 · Activate</button>
+    <h2>오늘 미션 (로컬 저장)</h2>
+    <div id="missions"></div>
+    <button class="primary" id="save" style="margin-top:10px">저장 · 시그널</button>
   </div>
-  <p style="text-align:center;margin-top:12px"><a href="https://hosuman08-netizen.github.io/legion-hub/">← Legion Arcade</a></p>
-  <footer>Fictional / tool demo where applicable · Not financial advice · 18+</footer>
+
+  <div class="card">
+    <h2>협찬 / 컨택 파이프</h2>
+    <input type="text" id="contact" placeholder="브랜드·MCN·툴 이름"/>
+    <textarea id="note" rows="2" placeholder="다음에 보낼 한 줄 / 상태" style="margin-top:8px"></textarea>
+    <button class="primary" id="addContact" style="margin-top:8px">파이프에 추가</button>
+    <div id="pipe" style="margin-top:10px;font-size:13px;color:var(--dim)"></div>
+  </div>
+
+  <div class="card links">
+    <h2>함대 시딩 (1탭)</h2>
+    <a href="https://hosuman08-netizen.github.io/legion-hub/" target="_blank">Legion Arcade 허브</a>
+    <a href="https://hosuman08-netizen.github.io/daedalus-conquest/" target="_blank">p1 Daedalus</a>
+    <a href="https://hosuman08-netizen.github.io/saju-miniapp/" target="_blank">사주</a>
+    <a href="https://hosuman08-netizen.github.io/tarot-oracle/" target="_blank">타로</a>
+    <a href="https://hosuman08-netizen.github.io/my-pantheon/" target="_blank">My Pantheon</a>
+  </div>
+
+  <button class="ghost" id="share" style="width:100%;margin-top:8px">📤 오늘 보드 공유 문구 복사</button>
+  <footer>Tool for creators · Not financial advice · Legion p19</footer>
+  <div id="toast"></div>
   <script>window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-analytics.hoyashi95.workers.dev';</script>
   <script src="legion-beacon.js"></script>
   <script>
-    document.getElementById('cta').onclick=function(){
-      try{if(window.legionTrack)legionTrack('activate',{app:'influencer-ops'});}catch(e){}
-      alert('Scaffold live — core loop next. Legion.');
-    };
+  const KEY='p19_ops_v1';
+  const DEFAULT=['콘텐츠 1개 올리기','함대 링크 프로필/고정 확인','협찬·컨택 1건','DM/댓글 30분','숫자 1줄 기록'];
+  function today(){return new Date().toISOString().slice(0,10)}
+  function load(){
+    try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}
+  }
+  function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
+  function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2500)}
+  function state(){
+    let s=load();
+    if(s.day!==today()){s.day=today();s.checks=DEFAULT.map(()=>false);s.pipe=s.pipe||[]}
+    // streak
+    if(s.lastDone!==today()){
+      const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+      if(s.lastDone===y) s.streak=(s.streak||0); else if(s.lastDone!==today()){ /* keep until complete */ }
+    }
+    return s;
+  }
+  function render(){
+    const s=state();
+    const box=document.getElementById('missions');
+    box.innerHTML='';
+    DEFAULT.forEach((label,i)=>{
+      const lab=document.createElement('label');
+      const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!(s.checks&&s.checks[i]);
+      cb.onchange=()=>{s.checks[i]=cb.checked;save(s);updateMeta(s)};
+      lab.appendChild(cb);lab.appendChild(document.createTextNode(' '+label));
+      box.appendChild(lab);
+    });
+    updateMeta(s);
+    const pipe=document.getElementById('pipe');
+    pipe.innerHTML=(s.pipe||[]).slice().reverse().map(p=>`<div style="margin:6px 0;padding:8px;border:1px solid #2a2438;border-radius:8px"><b>${escapeHtml(p.name)}</b><br>${escapeHtml(p.note||'')}<br><span style="font-size:11px">${p.at||''}</span></div>`).join('')||'아직 없음 — 컨택 추가';
+    // midnight clock
+    const n=new Date();const end=new Date(n);end.setHours(24,0,0,0);
+    const m=Math.max(0,Math.floor((end-n)/60000));
+    document.getElementById('clock').textContent='⏱ 자정까지 '+Math.floor(m/60)+'h '+(m%60)+'m';
+  }
+  function escapeHtml(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function updateMeta(s){
+    const n=(s.checks||[]).filter(Boolean).length;
+    document.getElementById('done').textContent='✅ '+n+'/5';
+    let streak=s.streak||0;
+    if(n>=5 && s.lastDone!==today()){streak=(s.lastDone===new Date(Date.now()-864e5).toISOString().slice(0,10)?streak+1:1);s.streak=streak;s.lastDone=today();save(s);try{legionTrack('activate',{all:1})}catch(e){}}
+    document.getElementById('streak').textContent='🔥 '+(s.streak||0)+'일';
+  }
+  document.getElementById('save').onclick=()=>{
+    const s=state();save(s);updateMeta(s);
+    try{if(window.legionTrack)legionTrack('activate',{save:1})}catch(e){}
+    toast('저장됨 · 군단 시그널');
+  };
+  document.getElementById('addContact').onclick=()=>{
+    const s=state();
+    const name=document.getElementById('contact').value.trim();
+    const note=document.getElementById('note').value.trim();
+    if(!name){toast('이름 필요');return}
+    s.pipe=s.pipe||[];s.pipe.push({name,note,at:new Date().toLocaleString()});
+    save(s);document.getElementById('contact').value='';document.getElementById('note').value='';
+    try{if(window.legionTrack)legionTrack('share',{pipe:1})}catch(e){}
+    render();toast('파이프 추가');
+  };
+  document.getElementById('share').onclick=async()=>{
+    const s=state();const n=(s.checks||[]).filter(Boolean).length;
+    const text=`Influencer Ops · 오늘 ${n}/5 · 스트릭 ${s.streak||0}일\n함대: https://hosuman08-netizen.github.io/legion-hub/\n#AI군단 #크리에이터`;
+    try{await navigator.clipboard.writeText(text);toast('복사됨')}catch(e){prompt('복사',text)}
+    try{if(window.legionTrack)legionTrack('share',{board:1})}catch(e){}
+  };
+  render();
+  setInterval(render,60000);
+  try{if(window.legionTrack)legionTrack('session_start',{})}catch(e){}
   </script>
 </body>
 </html>
