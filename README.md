@@ -14,3 +14,8 @@ Ship thin live → measure install/activate/share → FOMO+share DNA → monetiz
 - [ ] legionTrack install/session/share
 - [ ] Hub card
 - [ ] neo seed when core ready
+
+<!-- LEARNED 2026-07-21 FULL WAVE: dual-track | pipe-first | CRO gate | Loop -->
+
+## LEARNED 2026-07-21 parallel
+- PWA sw shell · always-learning stamp · fleet parallel wave

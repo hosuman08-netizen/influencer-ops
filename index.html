@@ -134,5 +134,8 @@
   setInterval(render,60000);
   try{if(window.legionTrack)legionTrack('session_start',{})}catch(e){}
   </script>
+
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}</script>
+
 </body>
 </html>
