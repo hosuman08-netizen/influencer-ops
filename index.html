@@ -112,6 +112,15 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
       box.appendChild(lab);
     });
     updateMeta(s);
+    if(!document.getElementById('checkAllM')){
+      const row=document.querySelector('.row');
+      if(row){
+        const b=document.createElement('button'); b.id='checkAllM'; b.className='ghost'; b.textContent='미션 전부';
+        b.style.cssText='padding:6px 10px';
+        b.onclick=()=>{const s2=state(); s2.checks=DEFAULT.map(()=>true); save(s2); render(); try{legionTrack('activate',{allquick:1})}catch(e){}};
+        row.appendChild(b);
+      }
+    }
     const pipe=document.getElementById('pipe');
     const STAGES=['lead','sent','reply','deal','pass'];
     const stageLabel={lead:'리드',sent:'발송',reply:'회신',deal:'성사',pass:'패스'};
@@ -124,6 +133,7 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
         <br><span style="font-size:11px">${p.at||''}</span>
         <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
           <button type="button" class="ghost" data-stage="${real}" style="padding:6px 10px">단계→</button>
+          <button type="button" class="ghost" data-back="${real}" style="padding:6px 10px">←</button>
           <button type="button" class="ghost" data-pdel="${real}" style="padding:6px 10px">삭제</button>
         </div>
       </div>`;
@@ -137,6 +147,17 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
         cur.at=new Date().toLocaleString();
         save(s2); render(); toast('단계 '+(stageLabel[cur.stage]||cur.stage));
         try{legionTrack('pipe_stage',{stage:cur.stage})}catch(e){}
+      };
+    });
+    pipe.querySelectorAll('[data-back]').forEach(btn=>{
+      btn.onclick=()=>{
+        const i=+btn.getAttribute('data-back'); const s2=state();
+        const cur=s2.pipe[i]; if(!cur)return;
+        const idx=STAGES.indexOf(cur.stage||'lead');
+        cur.stage=STAGES[Math.max(0, idx-1)];
+        cur.at=new Date().toLocaleString();
+        save(s2); render(); toast('단계 '+(stageLabel[cur.stage]||cur.stage));
+        try{legionTrack('pipe_stage',{stage:cur.stage,back:1})}catch(e){}
       };
     });
     pipe.querySelectorAll('[data-pdel]').forEach(btn=>{
