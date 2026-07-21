@@ -192,6 +192,22 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
         const row=document.querySelector('.row'); if(row) row.appendChild(fc);
       }
       fc.textContent='파이프 L'+counts.lead+'/S'+counts.sent+'/R'+counts.reply+'/D'+counts.deal;
+      // deal conversion rate chip (transparent ops metric)
+      let dc=document.getElementById('dealChip');
+      if(!dc){
+        dc=document.createElement('span'); dc.id='dealChip'; dc.className='chip';
+        const row=document.querySelector('.row'); if(row) row.appendChild(dc);
+      }
+      const denom=counts.lead+counts.sent+counts.reply+counts.deal+counts.pass;
+      const rate=denom?Math.round(counts.deal/denom*100):0;
+      dc.textContent='성사율 '+rate+'% ('+counts.deal+'/'+denom+')';
+      // p10 fictional chip
+      let pc=document.getElementById('p10Chip');
+      if(!pc){
+        pc=document.createElement('span'); pc.id='p10Chip'; pc.className='chip';
+        const row=document.querySelector('.row'); if(row) row.appendChild(pc);
+      }
+      try{ pc.textContent='💳 p10 '+(window.p10Bal?p10Bal():'—'); }catch(e){ pc.textContent='💳 p10 —'; }
     }catch(e){}
 
     const n=(s.checks||[]).filter(Boolean).length;
@@ -200,6 +216,7 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
     const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
     if(n>=5 && s.lastDone!==today()){
       streak=(s.lastDone===y?streak+1:1);s.streak=streak;s.lastDone=today();s.dayScore=5;
+      try{ if(window.p10Grant && !localStorage.getItem('inf_p10_'+today())){ p10Grant(3); localStorage.setItem('inf_p10_'+today(),'1'); } }catch(e){}
       save(s); logWeekDay(5); try{legionTrack('activate',{all:1})}catch(e){}
     } else if(n>=3 && s.lastDone!==today() && !s.partialToday){
       // soft partial retention: first time hitting 3/5 counts as soft day if no full yet
