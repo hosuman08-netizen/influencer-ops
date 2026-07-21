@@ -249,7 +249,17 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
         cells.push('<span class="chip" style="'+(full?'background:#166534;color:#bbf7d0':n>=3?'background:#3b2f10;color:#fde68a':'')+'">'+d.slice(5)+' '+n+'/5</span>');
       }
       const rate=Math.round(fullDays/7*100);
-      el.innerHTML=cells.join('')+'<div style="margin-top:6px;font-size:11px;opacity:.8">7일 완주 '+fullDays+'/7 ('+rate+'%) · 3+일 '+partial+' · 평균 '+(sum/7).toFixed(1)+'/5</div>';
+      // pipe conversion: deal / total contacts
+      let conv='';
+      try{
+        const s2=state(); const pipe=s2.pipe||[];
+        const deals=pipe.filter(p=>(p.stage||'')==='deal').length;
+        const total=pipe.length;
+        const cr=total?Math.round(deals/total*100):0;
+        const leads=pipe.filter(p=>(p.stage||'lead')==='lead').length;
+        conv=' · 파이프 성사 '+deals+'/'+total+' ('+cr+'%) · 리드 '+leads;
+      }catch(e){}
+      el.innerHTML=cells.join('')+'<div style="margin-top:6px;font-size:11px;opacity:.8">7일 완주 '+fullDays+'/7 ('+rate+'%) · 3+일 '+partial+' · 평균 '+(sum/7).toFixed(1)+'/5'+conv+'</div>';
     }catch(e){}
   }
   document.getElementById('save').onclick=()=>{
@@ -269,9 +279,11 @@ window.LEGION_APP='influencer-ops';window.LEGION_ANALYTICS_URL='https://legion-a
   };
   document.getElementById('share').onclick=async()=>{
     const s=state();const n=(s.checks||[]).filter(Boolean).length;
-    const text=`Influencer Ops · 오늘 ${n}/5 · 스트릭 ${s.streak||0}일\n함대: https://hosuman08-netizen.github.io/legion-hub/\n#AI군단 #크리에이터`;
+    const pipe=s.pipe||[];
+    const deals=pipe.filter(p=>(p.stage||'')==='deal').length;
+    const text=`Influencer Ops · 오늘 ${n}/5 · 스트릭 ${s.streak||0}일 · 성사 ${deals}/${pipe.length}\n함대: https://hosuman08-netizen.github.io/legion-hub/\n#AI군단 #크리에이터`;
     try{await navigator.clipboard.writeText(text);toast('복사됨')}catch(e){prompt('복사',text)}
-    try{if(window.legionTrack)legionTrack('share',{board:1})}catch(e){}
+    try{if(window.legionTrack)legionTrack('share',{board:1,deals})}catch(e){}
   };
 
   document.getElementById('saveMetric').onclick=()=>{
